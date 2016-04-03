@@ -203,6 +203,8 @@ public abstract class ResourceUtils {
 	}
 
 	/**
+	 * 根据URL获取File
+	 *
 	 * Resolve the given resource URL to a {@code java.io.File},
 	 * i.e. to a file in the file system.
 	 * @param resourceUrl the resource URL to resolve

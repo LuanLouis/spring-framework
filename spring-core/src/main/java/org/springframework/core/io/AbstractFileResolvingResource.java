@@ -27,6 +27,11 @@ import java.net.URLConnection;
 import org.springframework.util.ResourceUtils;
 
 /**
+ * 将URLResource解析成File文件引用
+ * 该类会解析两个protocol
+ * ：VFS
+ * ：file
+ * 包括URL远程文件的exists 和 lastModified
  * Abstract base class for resources which resolve URLs into File references,
  * such as {@link UrlResource} or {@link ClassPathResource}.
  *
@@ -84,16 +89,24 @@ public abstract class AbstractFileResolvingResource extends AbstractResource {
 	}
 
 
+	/**
+	 * 判断文件是否存在，
+	 * 若是本地资源，则可以通过File.exists()，
+	 * 若是远程的资源，则需要通过另外方式判断
+	 * @return
+     */
 	@Override
 	public boolean exists() {
 		try {
 			URL url = getURL();
+			//是否是文件类型的URL（startwith file: vfs:）
 			if (ResourceUtils.isFileURL(url)) {
 				// Proceed with file system resolution...
 				return getFile().exists();
 			}
 			else {
 				// Try a URL connection content-length header...
+				//否则，通过URLConnection获取到connection的对应的Resource信息
 				URLConnection con = url.openConnection();
 				customizeConnection(con);
 				HttpURLConnection httpCon =

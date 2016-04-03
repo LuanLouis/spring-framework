@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
+ *
+ * 可写Resource
  * Extended interface for a resource that supports writing to it.
  * Provides an {@link #getOutputStream() OutputStream accessor}.
  *

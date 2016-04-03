@@ -20,6 +20,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
+ *
+ * InputStream类型的Resource,
+ * 传入InputStream时状态已经是isOpen()状态的了，只能被读入一次，不能反复读取
  * {@link Resource} implementation for a given {@link InputStream}.
  * <p>Should only be used if no other specific {@code Resource} implementation
  * is applicable. In particular, prefer {@link ByteArrayResource} or any of the

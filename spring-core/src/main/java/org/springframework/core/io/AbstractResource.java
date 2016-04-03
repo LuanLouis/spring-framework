@@ -29,6 +29,10 @@ import org.springframework.util.Assert;
 import org.springframework.util.ResourceUtils;
 
 /**
+ * exists()方法将会校验一个文件或者输入流是否可以打开
+ * isOpen() return false
+ * getURL() getFile() 将会抛异常
+ * getContentSize() 将会返回content的大小
  * Convenience base class for {@link Resource} implementations,
  * pre-implementing typical behavior.
  *
@@ -49,10 +53,12 @@ public abstract class AbstractResource implements Resource {
 	@Override
 	public boolean exists() {
 		// Try file existence: can we find the file in the file system?
+		//1.首先本地的文件系统校验文件是否存在
 		try {
 			return getFile().exists();
 		}
 		catch (IOException ex) {
+			//2. 打开InputStream输入流，并关闭，如果成功，表明该流存在
 			// Fall back to stream existence: can we open the stream?
 			try {
 				InputStream is = getInputStream();
@@ -115,6 +121,8 @@ public abstract class AbstractResource implements Resource {
 	}
 
 	/**
+	 *
+	 * 统计当前Reousrce的大小，对于InputStream而言，这要遍历读取一次，性能消耗略大
 	 * This implementation reads the entire InputStream to calculate the
 	 * content length. Subclasses will almost always be able to provide
 	 * a more optimal version of this, e.g. checking a File length.
@@ -123,6 +131,7 @@ public abstract class AbstractResource implements Resource {
 	 */
 	@Override
 	public long contentLength() throws IOException {
+		//打开输入流
 		InputStream is = getInputStream();
 		Assert.state(is != null, "Resource InputStream must not be null");
 		try {

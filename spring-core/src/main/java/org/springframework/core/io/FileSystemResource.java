@@ -29,6 +29,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
+ *
+ * 专门处理文件的Resource,支持写操作
+ *
  * {@link Resource} implementation for {@code java.io.File} handles.
  * Obviously supports resolution as File, and also as URL.
  * Implements the extended {@link WritableResource} interface.

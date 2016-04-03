@@ -19,6 +19,9 @@ package org.springframework.core.io;
 import org.springframework.util.ResourceUtils;
 
 /**
+ *
+ * 资源加载器，用来加载资源
+ * DefaultResourceLoader 是独立的默认实现
  * Strategy interface for loading resources (e.. class path or file system
  * resources). An {@link org.springframework.context.ApplicationContext}
  * is required to provide this functionality, plus extended

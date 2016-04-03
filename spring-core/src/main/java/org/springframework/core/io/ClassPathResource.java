@@ -27,6 +27,11 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
+ *
+ * 根据类路径的一个资源
+ * 每个类都是通过类加载器加载的，对应的类加载器加载类的时候，会知道这个类的path,
+ * 即，对于
+ *
  * {@link Resource} implementation for class path resources. Uses either a
  * given {@link ClassLoader} or a given {@link Class} for loading resources.
  *
@@ -64,6 +69,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
 	}
 
 	/**
+	 * 删除path中的/ ，因为这个对classloader而言没有意义
 	 * Create a new {@code ClassPathResource} for {@code ClassLoader} usage.
 	 * A leading slash will be removed, as the ClassLoader resource access
 	 * methods will not accept it.
@@ -136,6 +142,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
 	}
 
 	/**
+	 * 根据 path返回URL
 	 * Resolves a URL for the underlying class path resource.
 	 * @return the resolved URL, or {@code null} if not resolvable
 	 */
@@ -152,6 +159,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
 	}
 
 	/**
+	 *
 	 * This implementation opens an InputStream for the given class path resource.
 	 * @see java.lang.ClassLoader#getResourceAsStream(String)
 	 * @see java.lang.Class#getResourceAsStream(String)
@@ -159,12 +167,15 @@ public class ClassPathResource extends AbstractFileResolvingResource {
 	@Override
 	public InputStream getInputStream() throws IOException {
 		InputStream is;
+		//如果根据class来取，这么久应该按照相对XXXX.class这个path来取InputStream
 		if (this.clazz != null) {
 			is = this.clazz.getResourceAsStream(this.path);
 		}
+		//否则使用classloader进行加载
 		else if (this.classLoader != null) {
 			is = this.classLoader.getResourceAsStream(this.path);
 		}
+		//否则使用系统类加载器进行加载
 		else {
 			is = ClassLoader.getSystemResourceAsStream(this.path);
 		}
