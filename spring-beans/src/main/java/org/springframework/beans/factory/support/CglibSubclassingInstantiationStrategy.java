@@ -281,6 +281,7 @@ public class CglibSubclassingInstantiationStrategy extends SimpleInstantiationSt
 			// Cast is safe, as CallbackFilter filters are used selectively.
 			LookupOverride lo = (LookupOverride) getBeanDefinition().getMethodOverrides().getOverride(method);
 			Object[] argsToUse = (args.length > 0 ? args : null);  // if no-arg, don't insist on args at all
+			//通过BeanFactory底层自动注入的形式产生， 不需要手动生命ApplicationAware注入
 			if (StringUtils.hasText(lo.getBeanName())) {
 				return this.owner.getBean(lo.getBeanName(), argsToUse);
 			}

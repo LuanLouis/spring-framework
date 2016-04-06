@@ -23,6 +23,10 @@ import org.springframework.beans.BeansException;
 import org.springframework.core.ResolvableType;
 
 /**
+ * 拓展了BeanFactory接口的功能，使Factory具备 通过不同的遍历方式遍历容器内部Bean的能力
+ *
+ *
+ *
  * Extension of the {@link BeanFactory} interface to be implemented by bean factories
  * that can enumerate all their bean instances, rather than attempting bean lookup
  * by name one by one as requested by clients. BeanFactory implementations that
@@ -57,6 +61,11 @@ import org.springframework.core.ResolvableType;
 public interface ListableBeanFactory extends BeanFactory {
 
 	/**
+	 *
+	 * 检验该工厂是否包含对某一bean的定义
+	 * 1.仅仅针对本工厂内的定义，不包含父工厂的定义
+	 * 2.忽略不是通过bean definition加载进来的singleton Bean
+	 *
 	 * Check if this bean factory contains a bean definition with the given name.
 	 * <p>Does not consider any hierarchy this factory may participate in,
 	 * and ignores any singleton beans that have been registered by
@@ -68,6 +77,7 @@ public interface ListableBeanFactory extends BeanFactory {
 	boolean containsBeanDefinition(String beanName);
 
 	/**
+	 * 统计当前工厂Bean定义的个数
 	 * Return the number of beans defined in the factory.
 	 * <p>Does not consider any hierarchy this factory may participate in,
 	 * and ignores any singleton beans that have been registered by
@@ -77,6 +87,7 @@ public interface ListableBeanFactory extends BeanFactory {
 	int getBeanDefinitionCount();
 
 	/**
+	 * 查询当前工厂Bean定义 的 bean名
 	 * Return the names of all beans defined in this factory.
 	 * <p>Does not consider any hierarchy this factory may participate in,
 	 * and ignores any singleton beans that have been registered by
@@ -87,6 +98,10 @@ public interface ListableBeanFactory extends BeanFactory {
 	String[] getBeanDefinitionNames();
 
 	/**
+	 *
+	 * 根据指定的class类型（包括子类）返回bean的name
+	 * 只会返回最高级别的bean
+	 *
 	 * Return the names of beans matching the given type (including subclasses),
 	 * judging from either bean definitions or the value of {@code getObjectType}
 	 * in the case of FactoryBeans.

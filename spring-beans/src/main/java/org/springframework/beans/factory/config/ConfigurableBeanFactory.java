@@ -30,6 +30,19 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.util.StringValueResolver;
 
 /**
+ * 拓展HierarchicalBeanFactory 和 SingletonBeanRegistry，使BeanFactory支持可配置的功能，即为BeanFactory set一些组件
+ *  1. 配置parentBeanFactory
+ *  2. 配置Bean的类加载器 beanClassLoader
+ *  3. 配置临时类加载器setTempClassLoader
+ *  4. 是否支持cacheMetadata
+ *  5. 设定bean表达式解析器BeanExpressionResolver
+ *  6. 设置ConversionService,用来Object的转换
+ *  7. 注册BeanPostProcessor
+ *  8. 注册自定义的Scope
+ *  9. 配置TypeConvertor
+ *  10. 注册别名
+ *  11. 注册bean的依赖关系
+ *  12. 获取合并的BeanDefinition
  * Configuration interface to be implemented by most bean factories. Provides
  * facilities to configure a bean factory, in addition to the bean factory
  * client methods in the {@link org.springframework.beans.factory.BeanFactory}
@@ -65,6 +78,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
 
 
 	/**
+	 *
 	 * Set the parent of this bean factory.
 	 * <p>Note that the parent cannot be changed: It should only be set outside
 	 * a constructor if it isn't available at the time of factory instantiation.
@@ -111,6 +125,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
 	ClassLoader getTempClassLoader();
 
 	/**
+	 * 知否支持特定的bean定义上缓存bean的 metadata
 	 * Set whether to cache bean metadata such as given bean definitions
 	 * (in merged fashion) and resolved bean classes. Default is on.
 	 * <p>Turn this flag off to enable hot-refreshing of bean definition objects
@@ -300,6 +315,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
 	void resolveAliases(StringValueResolver valueResolver);
 
 	/**
+	 * 获取合并的BeanDefinition
 	 * Return a merged BeanDefinition for the given bean name,
 	 * merging a child bean definition with its parent if necessary.
 	 * Considers bean definitions in ancestor factories as well.
@@ -311,6 +327,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
 	BeanDefinition getMergedBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
 
 	/**
+	 * 判断某bean是否是factory bean
 	 * Determine whether the bean with the given name is a FactoryBean.
 	 * @param name the name of the bean to check
 	 * @return whether the bean is a FactoryBean
@@ -321,6 +338,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
 	boolean isFactoryBean(String name) throws NoSuchBeanDefinitionException;
 
 	/**
+	 * 明确控制某一个Bean是否在创建过程中
 	 * Explicitly control the current in-creation status of the specified bean.
 	 * For container-internal use only.
 	 * @param beanName the name of the bean
@@ -330,6 +348,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
 	void setCurrentlyInCreation(String beanName, boolean inCreation);
 
 	/**
+	 * 判断某一个bean当前是否在创建过程中，基于同步控制
 	 * Determine whether the specified bean is currently in creation.
 	 * @param beanName the name of the bean
 	 * @return whether the bean is currently in creation
@@ -338,6 +357,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
 	boolean isCurrentlyInCreation(String beanName);
 
 	/**
+	 *注册bean的依赖关系
 	 * Register a dependent bean for the given bean,
 	 * to be destroyed before the given bean is destroyed.
 	 * @param beanName the name of the bean

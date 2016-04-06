@@ -279,6 +279,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	}
 
 	/**
+	 * AutowireCandidateResolver，用来负责遇到自动装配的时候，Candidate选择器
 	 * Set a custom autowire candidate resolver for this BeanFactory to use
 	 * when deciding whether a bean definition should be considered as a
 	 * candidate for autowiring.
@@ -316,7 +317,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		super.copyConfigurationFrom(otherFactory);
 		if (otherFactory instanceof DefaultListableBeanFactory) {
 			DefaultListableBeanFactory otherListableFactory = (DefaultListableBeanFactory) otherFactory;
+			//是否允许bean定义覆盖
 			this.allowBeanDefinitionOverriding = otherListableFactory.allowBeanDefinitionOverriding;
+			//是否先进行ClassLoad
 			this.allowEagerClassLoading = otherListableFactory.allowEagerClassLoading;
 			this.autowireCandidateResolver = otherListableFactory.autowireCandidateResolver;
 			this.resolvableDependencies.putAll(otherListableFactory.resolvableDependencies);
@@ -336,34 +339,45 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	@Override
 	public <T> T getBean(Class<T> requiredType, Object... args) throws BeansException {
 		Assert.notNull(requiredType, "Required type must not be null");
+		//获取相同Type的bean name 列表
 		String[] beanNames = getBeanNamesForType(requiredType);
 		if (beanNames.length > 1) {
 			ArrayList<String> autowireCandidates = new ArrayList<String>();
+			//选取candidate
 			for (String beanName : beanNames) {
+
 				if (!containsBeanDefinition(beanName) || getBeanDefinition(beanName).isAutowireCandidate()) {
 					autowireCandidates.add(beanName);
 				}
 			}
+			//多个candidate
 			if (autowireCandidates.size() > 0) {
 				beanNames = autowireCandidates.toArray(new String[autowireCandidates.size()]);
 			}
 		}
+
 		if (beanNames.length == 1) {
 			return getBean(beanNames[0], requiredType, args);
 		}
 		else if (beanNames.length > 1) {
 			Map<String, Object> candidates = new HashMap<String, Object>();
+
+			//获取到每一个instance
 			for (String beanName : beanNames) {
 				candidates.put(beanName, getBean(beanName, requiredType, args));
 			}
+			//从Candidate列表中获取到一个primaryCandidate
 			String primaryCandidate = determinePrimaryCandidate(candidates, requiredType);
 			if (primaryCandidate != null) {
 				return getBean(primaryCandidate, requiredType, args);
 			}
+
+			//获取到一个优先级最高的Candidate
 			String priorityCandidate = determineHighestPriorityCandidate(candidates, requiredType);
 			if (priorityCandidate != null) {
 				return getBean(priorityCandidate, requiredType, args);
 			}
+			//无法确定某一个candidate的唯一性，抛出异常
 			throw new NoUniqueBeanDefinitionException(requiredType, candidates.keySet());
 		}
 		else if (getParentBeanFactory() != null) {
@@ -379,6 +393,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	// Implementation of ListableBeanFactory interface
 	//---------------------------------------------------------------------
 
+	/**
+	 * 内部持有一个Map,存储BeanDefinition，这个不会校验 ParentBeanFactory的信息
+	 * @param beanName the name of the bean to look for
+	 * @return
+     */
 	@Override
 	public boolean containsBeanDefinition(String beanName) {
 		Assert.notNull(beanName, "Bean name must not be null");
@@ -1259,6 +1278,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	}
 
 	/**
+	 * 找出优先级最高的candidate
 	 * Determine the primary candidate in the given set of beans.
 	 * @param candidateBeans a Map of candidate names and candidate instances
 	 * that match the required type
@@ -1271,14 +1291,19 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		for (Map.Entry<String, Object> entry : candidateBeans.entrySet()) {
 			String candidateBeanName = entry.getKey();
 			Object beanInstance = entry.getValue();
+
+			//是否有primary标识，这个不仅在当前BeanFactory查找，还会从ParentFactory中查找
 			if (isPrimary(candidateBeanName, beanInstance)) {
 				if (primaryBeanName != null) {
+
 					boolean candidateLocal = containsBeanDefinition(candidateBeanName);
 					boolean primaryLocal = containsBeanDefinition(primaryBeanName);
+					//一个BeanFactory下有两个primary标识，则报错
 					if (candidateLocal && primaryLocal) {
 						throw new NoUniqueBeanDefinitionException(requiredType, candidateBeans.size(),
 								"more than one 'primary' bean found among candidates: " + candidateBeans.keySet());
 					}
+					//如果上一个primaryBeanName是从parentBeanFactory获取的，而当前的candidateBeanName是从当前BeanFactory获取的，那么将覆盖掉parentBeanFactory的定义
 					else if (candidateLocal) {
 						primaryBeanName = candidateBeanName;
 					}
@@ -1292,6 +1317,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	}
 
 	/**
+	 * 获取到一个优先级最高的Candidate
 	 * Determine the candidate with the highest priority in the given set of beans. As
 	 * defined by the {@link org.springframework.core.Ordered} interface, the lowest
 	 * value has the highest priority.
@@ -1347,6 +1373,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	}
 
 	/**
+	 * 返回某个Bean Instance 的优先级
 	 * Return the priority assigned for the given bean instance by
 	 * the {@code javax.annotation.Priority} annotation.
 	 * <p>The default implementation delegates to the specified

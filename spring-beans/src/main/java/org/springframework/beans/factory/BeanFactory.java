@@ -28,6 +28,8 @@ import org.springframework.core.ResolvableType;
  * further interfaces such as {@link ListableBeanFactory} and
  * {@link org.springframework.beans.factory.config.ConfigurableBeanFactory}
  * are available for specific purposes.
+ * 该类是访问Spring容器的根接口，是对客户端而言Spring容器基本的视图，而其他的接口如
+ * {@link ListableBeanFactory} 和 {@link org.springframework.beans.factory.config.ConfigurableBeanFactory} 是为了满足其他需要
  *
  * <p>This interface is implemented by objects that hold a number of bean definitions,
  * each uniquely identified by a String name. Depending on the bean definition,

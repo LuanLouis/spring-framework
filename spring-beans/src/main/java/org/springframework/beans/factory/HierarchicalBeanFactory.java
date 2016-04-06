@@ -17,6 +17,9 @@
 package org.springframework.beans.factory;
 
 /**
+ * 拓展BeanFactory的功能，使其支持层级（类似继承管理）工厂模式
+ *
+ *
  * Sub-interface implemented by bean factories that can be part
  * of a hierarchy.
  *
@@ -32,6 +35,7 @@ package org.springframework.beans.factory;
 public interface HierarchicalBeanFactory extends BeanFactory {
 
 	/**
+	 * 返回父工厂
 	 * Return the parent bean factory, or {@code null} if there is none.
 	 */
 	BeanFactory getParentBeanFactory();
